@@ -2,10 +2,13 @@ import express from 'express'
 import { connectDB } from './utils/db.js'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import User from './models/UserSchema.js'
+import User from './models/User.js'
 import 'dotenv/config'
+import { authMiddleware } from './middleware/auth.middleware.js'
+import Agent from './models/Agent.js'
 
 const app = express()
+app.use(express.json());
 
 await connectDB();
 const secret = process.env.JWT_SECRET
@@ -42,7 +45,26 @@ app.post("/login", async (req, res) => {
     }
     const token = jwt.sign({ userId: user.email }, secret!, { expiresIn: "72h" })
     console.log(token)
-    return res.status(201).json({ message: "User Created", token })
+    return res.status(201).json({ message: "User Logged in", token })
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+app.post("/add/agent", authMiddleware, async (req, res) => {
+  const email = req.body.email
+  const password = req.body.password
+  const name = req.body.name
+  const phone = req.body.phone
+  try {
+    const hashedPass = await bcrypt.hash(password, 10)
+    const agent = await Agent.create({
+      email: email,
+      password: hashedPass,
+      name: name,
+      phone: phone
+    })
+    return res.status(201).json({ message: "Agent Created", agent })
   } catch (error) {
     console.log(error)
   }
