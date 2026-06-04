@@ -42,8 +42,9 @@ app.post("/register", async (req, res) => {
   const email = req.body.email
   const password = req.body.password
   try {
-    const userExists = await User.find({ email: email })
+    const userExists = await User.findOne({ email: email })
     if(userExists){
+      console.log(userExists)
       return res.status(409).json({ message: "User already exists" })
     }
     const hashedPass = await bcrypt.hash(password, 10)
@@ -86,8 +87,9 @@ app.post("/add/agent", authMiddleware, async (req, res) => {
   const name = req.body.name
   const phone = req.body.phone
   try {
-    const agentExists = await Agent.find({ email: email })
+    const agentExists = await Agent.findOne({ email: email })
     if(agentExists){
+      console.log(agentExists)
       return res.status(409).json({ message: "Agent already exists" })
     }
     const hashedPass = await bcrypt.hash(password, 10)
@@ -177,6 +179,43 @@ app.post("/upload/file", authMiddleware, upload.single('file'), async (req: Requ
     console.error("File processing error:", error);
   }
 })
+
+// Add this route to your Express server
+app.get("/api/distributed-lists", authMiddleware, async (req: Request, res: Response) => {
+  try {
+    // 1. Fetch all agents (Make sure to exclude their passwords!)
+    const agents = await Agent.find()
+    
+    if (!agents || agents.length === 0) {
+      return res.status(404).json({ message: "No agents found." });
+    }
+
+    // 2. Fetch all tasks
+    const tasks = await Task.find();
+
+    // 3. Group the tasks by Agent ID
+    const groupedData = agents.map(agent => {
+      // Find all tasks that belong to this specific agent
+      const agentTasks = tasks.filter(
+        task => task.AgentId === agent._id.toString()
+      );
+
+      // Return a clean object containing the agent info and their specific tasks
+      return {
+        agentDetails: agent,
+        totalAssigned: agentTasks.length,
+        tasks: agentTasks
+      };
+    });
+
+    // 4. Send the grouped data to the frontend
+    return res.status(200).json(groupedData);
+
+  } catch (error: any) {
+    console.error("Error fetching lists:", error);
+    return res.status(500).json({ error: "Failed to fetch distributed lists." });
+  }
+});
 
 app.use((req, res, err) => {
   console.log(err)

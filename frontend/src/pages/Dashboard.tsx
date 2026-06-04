@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import AddAgent from '../components/AddAgent';
 import UploadFile from '../components/UploadFile';
+import AgentLists from '../components/AgentLists';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -18,10 +19,9 @@ export default function Dashboard() {
           <h1 className='text-3xl font-bold'>Dashboard</h1>
           <button onClick={handleLogout} className='border px-2 py-1 rounded-xl bg-gray-800 cursor-pointer text-white'>Logout</button>
         </header>
-        {/* <div className=' bg-white'> */}
           <AddAgent />
           <UploadFile />
-        {/* </div> */}
+          <AgentLists />
       </div>
     </div>
   );
