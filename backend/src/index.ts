@@ -10,8 +10,14 @@ import multer from 'multer'
 import path from 'path'
 import XLSX from 'xlsx'
 import Task from './models/Task.js'
+import cors from 'cors'
 
 const app = express()
+const corsOptions = {
+  origin: process.env.FRONTEND_URL, 
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const storage = multer.memoryStorage()
@@ -36,6 +42,10 @@ app.post("/register", async (req, res) => {
   const email = req.body.email
   const password = req.body.password
   try {
+    const userExists = await User.find({ email: email })
+    if(userExists){
+      return res.status(409).json({ message: "User already exists" })
+    }
     const hashedPass = await bcrypt.hash(password, 10)
     const user = await User.create({
       email: email,
@@ -58,7 +68,7 @@ app.post("/login", async (req, res) => {
       // check http code and message here
       return res.status(409).json({ message: "Create an Account first" })
     }
-    const correct = bcrypt.compare(password, user?.password)
+    const correct = await bcrypt.compare(password, user?.password)
     if (!correct) {
       return res.status(401).json({ message: "Incorrect Password" })
     }
@@ -76,6 +86,10 @@ app.post("/add/agent", authMiddleware, async (req, res) => {
   const name = req.body.name
   const phone = req.body.phone
   try {
+    const agentExists = await Agent.find({ email: email })
+    if(agentExists){
+      return res.status(409).json({ message: "Agent already exists" })
+    }
     const hashedPass = await bcrypt.hash(password, 10)
     const agent = await Agent.create({
       email: email,

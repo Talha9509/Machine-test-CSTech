@@ -8,7 +8,7 @@ export interface newTask extends Document {
 }
 
 const TaskSchema = new Schema<newTask>({
-  FirstName: { type: String, required: true, unique: true },
+  FirstName: { type: String, required: true },
   phone: { type: String, required: true },
   notes: { type: String, required: true },
   AgentId: { type: String, required: true }
