@@ -19,7 +19,8 @@ export default function AddAgent() {
     };
 
     try {
-      const response = await fetch(`http://localhost:3001/add/agent`, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/add/agent`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `${token}` },
         body: JSON.stringify(finalPayload) 

@@ -17,7 +17,8 @@ export default function UploadFile() {
     formData.append('file', file);
 
     try {
-      const response = await fetch(`http://localhost:3001/upload/file`, {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/upload/file`, {
         method: 'POST', headers: { 'Authorization': `${token}` }, body: formData
       });
 

@@ -11,7 +11,8 @@ export default function AgentLists() {
     const token = localStorage.getItem('token');
 
     try {
-      const response = await fetch('http://localhost:3001/api/distributed-lists', {
+      const apiUrl = import.meta.env.VITE_API_URL;
+      const response = await fetch(`${apiUrl}/distributed-lists`, {
         headers: {
           'Authorization': `${token}`
         }
